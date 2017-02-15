@@ -1,0 +1,57 @@
+#!/bin/bash
+
+echo "*running ga"
+echo "	-initializing"
+userSelect="$@"
+devRootDir=$GA_HOME
+jacoOrbClass="-Dorg.omg.CORBA.ORBClass=org.jacorb.orb.ORB"
+jacoSingletonOrbClass="-Dorg.omg.CORBA.ORBSingletonClass=org.jacorb.orb.ORBSingleton"
+currentDir=`pwd`
+if [ -z "$devRootDir" ]
+then
+	cd ..
+	devRootDir=`pwd`
+	cd $currentDir
+	echo "		-assuming GA_HOME is $devRootDir"
+fi
+java_command=$JAVA_HOME/bin/java
+if [ -z "$JAVA_HOME" ]
+then
+	echo "		-JAVA_HOME not set, assuming java and javac are in path..."
+	java_command="java"
+fi
+javaVersionString=`$java_command -version 2>&1 | grep IBM`
+case $javaVersionString in
+	*"IBM"*)echo "	-VM is IBM";;
+	*)java_command="$java_command";echo "		-assuming Sun VM";;
+esac
+JACORB_HOME="$BIOSIM_HOME/lib/jacorb"
+jacoNameIOR="-DORBInitRef.NameService=file:$devRootDir/tmp/ns/ior.txt"
+separator=":"
+machineType=`uname`
+winName="CYGWIN"
+case $machineType in
+	*$winName*) separator=";";echo "		-machine type is $winName";;
+	*)separator=":";echo "		-assuming Unix machine type";;
+esac
+machineTypeEnv="-DMACHINE_TYPE=$machineType"
+####################
+# GA START	   #
+####################
+mainClassName="com.traclabs.biosim.ga.grid.JGAPClient"
+buildDir="$devRootDir/build"
+resourceString="/resources"
+resourceDir="$BIOSIM_HOME/$resourceString"
+biosimClasspath="$BIOSIM_HOME/build"
+logCLasspath="$BIOSIM_HOME/lib/log4j/log4j.jar"
+plotCLasspath="$devRootDir/lib/ptolemy/plot.jar"
+jgapClasspath="$devRootDir/lib/jgap/jgap.jar$separator$devRootDir/lib/jgap/commons-cli.jar$separator$devRootDir/lib/jgap/jcgrid.jar"
+jacorbClasspath="$JACORB_HOME/jacorb.jar$separator$JACORB_HOME$separator$JACORB_HOME/avalon-framework.jar$separator$JACORB_HOME/logkit.jar"
+invocation="$java_command -classpath $buildDir$separator$jgapClasspath$separator$plotCLasspath$separator$biosimClasspath$separator$logCLasspath$separator$jacorbClasspath$separator$resourceDir $jacoSingletonOrbClass $jacoOrbClass $jacoNameIOR $machineTypeEnv"
+serverStart="$invocation $mainClassName $@";
+echo "	-starting grid client"
+$serverStart $userSelect
+echo "*done invoking grid client"
+
+
+

@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<classpath>
+	<classpathentry kind="src" path="src"/>
+	<classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER"/>
+	<classpathentry kind="lib" path="lib/jgap/jgap.jar" sourcepath="/net/home/scott/workspace/jgap/src"/>
+	<classpathentry kind="lib" path="lib/ptolemy/plot.jar"/>
+	<classpathentry combineaccessrules="false" kind="src" path="/BIOSIM"/>
+	<classpathentry kind="lib" path="/BIOSIM/build"/>
+	<classpathentry kind="lib" path="lib/jgap/jcgrid.jar"/>
+	<classpathentry kind="lib" path="lib/jgap/commons-cli.jar"/>
+	<classpathentry kind="lib" path="/BIOSIM/lib/jacorb/avalon-framework.jar"/>
+	<classpathentry kind="lib" path="/BIOSIM/lib/jacorb/jacorb.jar"/>
+	<classpathentry kind="lib" path="/BIOSIM/lib/jacorb/logkit.jar"/>
+	<classpathentry kind="lib" path="/BIOSIM/lib/log4j/log4j.jar"/>
+	<classpathentry kind="output" path="build"/>
+</classpath>

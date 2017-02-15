@@ -1,0 +1,64 @@
+module com{
+        module traclabs{
+                module ga{
+                        module idl{
+                                typedef sequence <string> StringList;
+                                typedef sequence <float> FloatList;
+                                module genes{
+                                        enum GeneType {FLOAT_TYPE, INT_TYPE, BOOLEAN_TYPE, NO_TYPE};
+                                        typedef sequence <GeneType> GeneTypeList;
+                                        interface Gene{
+                                                Gene cross(in Gene pGeneToCross);
+                                                Gene mutate(in long pMutationIntensity);
+                                                Gene invert();
+                                                long getCardinality();
+                                                boolean getBoolean(in long index);
+                                                float getFloat(in long index);
+                                                long getInt(in long index);
+                                                string getStringRep();
+                                                StringList getDescriptors();
+                                                StringList getStringValues();
+                                                GeneTypeList getGeneTypes();
+                                                void setValue(in long index, in string stringValue);
+                                        };
+                                };
+                                module nodes{
+                                        interface GANode{
+                                                void runGene(in genes::Gene pGene);
+                                                boolean isDone();
+                                        };
+                                        interface Result{
+                                                genes::Gene getGene();
+                                                float getUtility();
+                                        };
+                                        typedef sequence <Result> ResultList;
+                                };
+                                module handlers{
+                                        interface GAHandler{
+                                                void evaluateResult(in nodes::Result pResult);
+                                                nodes::ResultList getBestResults();
+                                                FloatList getUtilitiesReceived();
+                                                nodes::Result getBestResult();
+                                                nodes::Result getWorstResult();
+                                        };
+                                };
+                        };
+                };
+        };
+};
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

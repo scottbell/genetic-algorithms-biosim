@@ -1,0 +1,10 @@
+<?xml version="1.0"?>
+<ga xmlns="http://www.traclabs.com/ga" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.traclabs.com/ga ../schema/GAInitSchema.xsd">
+	<Globals>
+		<!-- <log4jProperty key="log4j.logger.com.traclabs.biosim.server.framework" value="DEBUG"/> -->
+	</Globals>
+	<Node className="com.traclabs.ga.server.nodes.reliability.ReliabilitySizingNode">
+		<nodeProperty key="controlPolicy" value="OFF"/>
+	</Node>
+	<Gene className="com.traclabs.ga.server.genes.reliability.ReliabilitySizingGene"></Gene>
+</ga>

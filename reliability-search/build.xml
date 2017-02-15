@@ -1,0 +1,52 @@
+<project name="com.traclabs.biosim.ga" default="build" basedir=".">
+	<description>
+        Build file for new GA
+		by Scott Bell
+	</description>
+	<!-- set global properties for this build -->
+	<property environment="env"/>
+	<property name="src" location="src" />
+	<property name="buildDir" location="build" />
+	<property name="resourceDir" location="resources" />
+	<property name="lib" location="lib" />
+	<property name="tmpDir" location="tmp" />
+	<property name="nsDir" location="${tmpDir}/ns" />
+	<property name="jacorbDir" location="${env.BIOSIM_HOME}/lib/jacorb" />
+	<property name="log4jDir" location="${env.BIOSIM_HOME}/lib/log4j" />
+	<property name="jgapDir" location="${lib}/jgap" />
+	<property name="biosimCode" location="${env.BIOSIM_HOME}/build"/>
+	<property name="plotDir" location="${lib}/ptolemy" />
+
+	<target name="init-build">
+		<mkdir dir="${buildDir}" />
+	</target>
+
+	<target name="build-ga" depends="init-build" description="compile the ga">
+		<echo message="Compling the ga" />
+		<javac srcdir="${src}/com/traclabs/biosim/ga" destdir="${buildDir}" nowarn="yes" failonerror="yes">
+			<classpath>
+				<pathelement location="${src}" />
+				<pathelement location="${buildDir}" />
+				<pathelement location="${log4jDir}/log4j.jar" />
+				<pathelement location="${log4jDir}/commons-logging.jar" />
+				<pathelement location="${jacorbDir}/jacorb.jar" />
+				<pathelement location="${jacorbDir}/avalon-framework.jar" />
+				<pathelement location="${biosimCode}" />
+				<pathelement location="${jgapDir}/jgap.jar" />
+				<pathelement location="${jgapDir}/commons-cli.jar" />
+				<pathelement location="${jgapDir}/jcgrid.jar" />
+				<pathelement location="${plotDir}/plot.jar" />
+			</classpath>
+		</javac>
+	</target>
+	
+	<target name="build" depends="build-ga" description="builds ga">
+	</target>
+
+	<target name="rebuild" depends="clean,build" description="cleans then builds">
+	</target>
+
+	<target name="clean" description="clean up">
+		<delete dir="${buildDir}" />
+	</target>
+</project>

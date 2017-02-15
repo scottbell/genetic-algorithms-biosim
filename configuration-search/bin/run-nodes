@@ -1,0 +1,56 @@
+#!/bin/bash
+
+echo "*running nodes"
+echo "	-initializing"
+userSelect="$@"
+devRootDir=$GA_HOME
+jacoOrbClass="-Dorg.omg.CORBA.ORBClass=org.jacorb.orb.ORB"
+jacoSingletonOrbClass="-Dorg.omg.CORBA.ORBSingletonClass=org.jacorb.orb.ORBSingleton"
+currentDir=`pwd`
+if [ -z "$devRootDir" ]
+then
+	cd ..
+	devRootDir=`pwd`
+	cd $currentDir
+	echo "		-assuming GA_HOME is $devRootDir"
+fi
+java_command=$JAVA_HOME/bin/java
+if [ -z "$JAVA_HOME" ]
+then
+	echo "		-JAVA_HOME not set, assuming java and javac are in path..."
+	java_command="java"
+fi
+javaVersionString=`$java_command -version 2>&1 | grep IBM`
+case $javaVersionString in
+	*"IBM"*)echo "	-VM is IBM";;
+	*)java_command="$java_command";echo "		-assuming Sun VM";;
+esac
+JACORB_HOME="$devRootDir/lib/jacorb"
+jacoNameIOR="-DORBInitRef.NameService=file:$devRootDir/tmp/ns/ior.txt"
+separator=":"
+machineType=`uname`
+winName="CYGWIN"
+case $machineType in
+	*$winName*) separator=";";echo "		-machine type is $winName";;
+	*)separator=":";echo "		-assuming Unix machine type";;
+esac
+machineTypeEnv="-DMACHINE_TYPE=$machineType"
+####################
+# SERVERS START	   #
+####################
+buildDir="$devRootDir/build"
+driverName="com.traclabs.ga.server.nodes.GANodeServer"
+resourceString="/resources"
+resourceDir=$devRootDir$resourceString
+biosimClasspath="$devRootDir/lib/biosim/biosim.jar"
+#biosimClasspath=$BIOSIM_HOME/build
+logCLasspath="$devRootDir/lib/log4j/log4j.jar"
+jacoClasspath="$JACORB_HOME/jacorb.jar$separator$JACORB_HOME$separator$JACORB_HOME/avalon-framework.jar$separator$JACORB_HOME/logkit.jar"
+jacoInvocation="$java_command -classpath $buildDir$separator$biosimClasspath$separator$logCLasspath$separator$jacoClasspath$separator$resourceDir $jacoSingletonOrbClass $jacoOrbClass $jacoNameIOR $machineTypeEnv"
+serverStart="$jacoInvocation $driverName";
+echo "	-starting nodes"
+$serverStart $userSelect
+echo "*done invoking nodes"
+
+
+

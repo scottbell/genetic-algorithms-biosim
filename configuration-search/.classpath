@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<classpath>
+	<classpathentry kind="src" path="src"/>
+	<classpathentry kind="src" path="stubs"/>
+	<classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER"/>
+	<classpathentry kind="lib" path="lib/jfreechart/jfreechart.jar"/>
+	<classpathentry kind="lib" path="lib/jfreechart/jcommon.jar"/>
+	<classpathentry kind="lib" path="lib/jacorb/jacorb.jar"/>
+	<classpathentry kind="lib" path="lib/log4j/log4j.jar"/>
+	<classpathentry kind="src" path="/BIOSIM"/>
+	<classpathentry kind="lib" path="lib/jacorb/avalon-framework.jar"/>
+	<classpathentry kind="lib" path="lib/jacorb/logkit.jar"/>
+	<classpathentry kind="lib" path="lib/ptplot/plot.jar"/>
+	<classpathentry kind="lib" path="resources"/>
+	<classpathentry kind="output" path="build"/>
+</classpath>

@@ -1,0 +1,179 @@
+<project name="GA" default="build" basedir=".">
+	<description>
+        	Build file for the GA
+	</description>
+	<!-- set global properties for this build -->
+	<property environment="env"/>
+	<!-- <property name="build.compiler"  value="jikes"/> -->
+  	<property name="src" location="src"/>
+	<property name="buildDir" location="build"/>
+  	<property name="doc" location="doc"/>
+	<property name="lib" location="lib"/>
+	<property name="jacorbDir" location="${lib}/jacorb"/>
+	<property name="tmpDir" location="tmp"/>
+	<property name="nsDir" location="${tmpDir}/ns"/>
+	<property name="stubsDir" location="stubs"/>
+	<!-- set server properties for this build -->
+	<property name="biosimCode" location="${lib}/biosim/biosim.jar"/>
+	<!--  <property name="biosimCode" location="${env.BIOSIM_HOME}/build"/> -->
+	<property name="log4jDir" location="${lib}/log4j"/>
+	<!-- set client properties for this build -->
+	<property name="plotDir" location="${lib}/jfreechart"/>
+	<!-- set javadoc properties for this build --> 
+	<property name="javadocDir" location="${doc}/javadoc"/>
+	
+	<target name="init-build">
+		<mkdir dir="${buildDir}"/>
+	</target>
+	
+	<target name="init-tmp">
+		<mkdir dir="${tmpDir}"/>
+	</target>
+	
+  	<target name="stub-idl" depends="init-build,init-tmp" description="stub the IDL file">
+		<mkdir dir="${stubsDir}"/>
+		<echo message="Stubbing the IDL file"/>
+		<java classname="org.jacorb.idl.parser" failonerror="yes">
+			<arg value="-d"/> 
+			<arg file="${stubsDir}"/>
+			<arg file="${src}/com/traclabs/ga/idl/ga.idl"/>
+			<classpath>
+				<pathelement location="${jacorbDir}/idl.jar"/>
+				<pathelement location="${jacorbDir}/logkit.jar"/>
+			</classpath>
+		</java>
+		<echo message="Compiling stubs"/>
+		<javac srcdir="${stubsDir}" destdir="${buildDir}" fork="yes" memoryMaximumSize="128m" nowarn="yes">
+			<classpath>
+				<pathelement location="${jacorbDir}/jacorb.jar"/>
+			</classpath>
+		</javac>
+	</target>
+	
+	<target name="build-util" depends="" description="compile the util">
+				<echo message="Compling the util" />
+				<javac srcdir="${src}/com/traclabs/ga/util" destdir="${buildDir}" nowarn="yes" failonerror="yes">
+					<classpath>
+						<pathelement location="${src}"/>
+						<pathelement location="${buildDir}"/>
+						<pathelement location="${log4jDir}/log4j.jar"/>
+						<pathelement location="${jacorbDir}/jacorb.jar"/>
+						<pathelement location="${biosimCode}"/>
+					</classpath>
+				</javac>
+	</target>
+
+	<target name="build-server" depends="stub-idl,build-util" description="compile the server">
+		<echo message="Compling the server ${biosimCode}"/>
+		<javac srcdir="${src}/com/traclabs/ga/server" destdir="${buildDir}" nowarn="yes">
+			<classpath>
+				<pathelement location="${src}"/>
+				<pathelement location="${buildDir}"/>
+				<pathelement location="${log4jDir}/log4j.jar"/>
+				<pathelement location="${jacorbDir}/jacorb.jar"/>
+				<pathelement location="${biosimCode}"/>
+			</classpath>
+		</javac>
+	</target>
+  
+   	<target name="build-client" depends="stub-idl" description="compile the client">
+		<echo message="Compling the client"/>
+		<javac srcdir="${src}/com/traclabs/ga/client" destdir="${buildDir}" nowarn="yes">
+			<classpath>
+				<pathelement location="${src}"/>
+				<pathelement location="${buildDir}"/>
+				<pathelement location="${log4jDir}/log4j.jar"/>
+				<pathelement location="${jacorbDir}/jacorb.jar"/>
+				<pathelement location="${plotDir}/jcommon.jar"/>
+				<pathelement location="${plotDir}/jfreechart.jar"/>
+			</classpath>
+		</javac>
+	</target>
+	
+	<target name="javadocs" depends="build-server,build-client" description="creates API documentation">
+		<mkdir dir="${javadocDir}"/>
+		<echo message="Creating javadocs"/>
+		<javadoc 
+			destdir="${javadocDir}" 
+			breakiterator="true" 
+			packagenames="com.traclabs.ga.*" 
+			author="true"
+			version="true"
+			use="true"
+			windowtitle="GA API"
+			maxmemory="160m">
+			<sourcepath>
+				<pathelement location="${src}"/>
+				<pathelement location="${stubsDir}"/>
+			</sourcepath>
+			<classpath>
+				<pathelement location="${buildDir}"/>
+				<pathelement location="${resourceDir}"/>
+				<pathelement location="${log4jDir}/log4j.jar"/>
+				<pathelement location="${jacorbDir}/jacorb.jar"/>
+				<pathelement location="${jacorbDir}/logkit.jar"/>
+				<pathelement location="${jacorbDir}/avalon-framework.jar"/>
+				<pathelement location="${plotDir}/jcommon.jar"/>
+				<pathelement location="${plotDir}/jfreechart.jar"/>
+				<pathelement location="${biosimCode}"/>
+			</classpath>
+		</javadoc>
+	</target>
+	
+	<target name="run-nameserver" depends="init-build" description="runs the nameserver">
+		<mkdir dir="${nsDir}"/>
+		<echo message="Starting nameserver"/>
+		<java classname="org.jacorb.naming.NameServer" error="nameserver.txt"  failonerror="yes">
+			<sysproperty key="org.omg.CORBA.ORBClass" value="org.jacorb.orb.ORB"/>
+			<sysproperty key="org.omg.CORBA.ORBSingletonClass" value="org.jacorb.orb.ORBSingleton"/>
+			<arg value="${nsDir}/ior.txt"/>
+			<classpath>
+				<pathelement location="${jacorbDir}/jacorb.jar"/>
+				<pathelement location="${jacorbDir}/logkit.jar"/>
+				<pathelement location="${jacorbDir}/avalon-framework.jar"/>
+			</classpath>
+		</java>
+	</target>
+	
+	<target name="run-nameserver-viewer" description="runs the nameserver viewer">
+		<echo message="Starting nameserver viewer"/>
+		<java classname="org.jacorb.naming.namemanager.NameManager" failonerror="yes">
+			<sysproperty key="org.omg.CORBA.ORBClass" value="org.jacorb.orb.ORB"/>
+			<sysproperty key="org.omg.CORBA.ORBSingletonClass" value="org.jacorb.orb.ORBSingleton"/>
+			<sysproperty key="ORBInitRef.NameService" value="file:${nsDir}/ior.txt"/>
+			<classpath>
+				<pathelement location="${jacorbDir}/jacorb.jar"/>
+				<pathelement location="${jacorbDir}/logkit.jar"/>
+				<pathelement location="${jacorbDir}/avalon-framework.jar"/>
+			</classpath>
+		</java>
+	</target>
+  
+  	<target name="build-all" depends="docs" description="compile market sim, create docs">
+	</target>
+	
+	<target name="all" depends="clean-all,build-all" description="cleans then builds everything">
+	</target>
+	
+	<target name="build" depends="build-server,build-client" description="builds GA">
+	</target>
+	
+	<target name="main" depends="build" description="builds GA (alias to build)">
+	</target>
+	
+	<target name="docs" depends="javadocs" description="creates documentation">
+	</target>
+
+	<target name="clean" description="clean up">
+		<delete dir="${buildDir}"/>
+		<delete dir="${stubsDir}"/>
+	</target>
+	
+	<target name="clean-all" depends="clean" description="clean up everything (docs, tmp, dists)">
+			<delete dir="${tmpDir}"/>
+			<delete dir="${javadocDir}"/>
+	</target>
+	
+	<target name="rebuild" depends="clean,build" description="cleans then builds">
+	</target>
+</project>

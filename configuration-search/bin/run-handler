@@ -1,0 +1,57 @@
+#!/bin/bash
+
+echo "*running handler"
+echo "	-initializing"
+userSelect="$@"
+devRootDir=$GA_HOME
+jacoOrbClass="-Dorg.omg.CORBA.ORBClass=org.jacorb.orb.ORB"
+jacoSingletonOrbClass="-Dorg.omg.CORBA.ORBSingletonClass=org.jacorb.orb.ORBSingleton"
+currentDir=`pwd`
+if [ -z "$devRootDir" ]
+then
+	cd ..
+	devRootDir=`pwd`
+	cd $currentDir
+	echo "		-assuming GA_HOME is $devRootDir"
+fi
+java_command=$JAVA_HOME/bin/java
+if [ -z "$JAVA_HOME" ]
+then
+	echo "		-JAVA_HOME not set, assuming java and javac are in path..."
+	java_command="java"
+fi
+javaVersionString=`$java_command -version 2>&1 | grep IBM`
+case $javaVersionString in
+	*"IBM"*)echo "	-VM is IBM";;
+	*)java_command="$java_command";echo "		-assuming Sun VM";;
+esac
+JACORB_HOME="$devRootDir/lib/jacorb"
+jacoNameIOR="-DORBInitRef.NameService=file:$devRootDir/tmp/ns/ior.txt"
+separator=":"
+machineType=`uname`
+winName="CYGWIN"
+case $machineType in
+	*$winName*) separator=";";echo "		-machine type is $winName";;
+	*)separator=":";echo "		-assuming Unix machine type";;
+esac
+machineTypeEnv="-DMACHINE_TYPE=$machineType"
+####################
+# SERVERS START	   #
+####################
+buildDir="$devRootDir/build"
+resourceString="/resources"
+resourceDir=$devRootDir$resourceString
+serverDir="$devRootDir/ga/server"
+logCLasspath="$devRootDir/lib/log4j/log4j.jar"
+jacoClasspath="$JACORB_HOME/jacorb.jar$separator$JACORB_HOME$separator$JACORB_HOME/avalon-framework.jar$separator$JACORB_HOME/logkit.jar"
+jacoInvocation="$java_command -classpath $buildDir$separator$resourceDir$separator$jacoClasspath$separator$logCLasspath $machineTypeEnv $jacoSingletonOrbClass $jacoOrbClass $jacoNameIOR"
+gaServerName="com.traclabs.ga.server.handlers.GAHandlerServer"
+echo "	-starting handler"
+case $userSelect in
+	ga) echo "			 -starting $userSelect";$jacoInvocation $gaServerName $1;;
+	*) echo "			-assuming ga";$jacoInvocation $gaServerName $1;;
+esac
+echo "*done invoking handler"
+
+
+
